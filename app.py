@@ -87,15 +87,19 @@ elif menu == "📊 Visualize Inputs":
             ax.set_ylabel("Years")
             st.pyplot(fig)
 
-        # Tuition Pie Chart
+                # Tuition Pie Chart
         if col2.button("💵 Show Tuition Fee Graph"):
-            st.subheader("💵 Tuition Fee Breakdown")
-            tuition_val = input_data["Tuition_USD"][0]
-            other_val = max(1, tuition_val * 0.4)
-            fig, ax = plt.subplots()
-            ax.pie([tuition_val, other_val], labels=["Tuition", "Other Costs"],
-                   colors=["##87CEEB", "#00008B"], autopct="%1.1f%%")
-            st.pyplot(fig)
+           st.subheader("💵 Tuition Fee Breakdown")
+           tuition_val = input_data["Tuition_USD"][0]
+           other_val = max(1, tuition_val * 0.4)
+           fig, ax = plt.subplots()
+           ax.pie(
+           [tuition_val, other_val],
+           labels=["Tuition", "Other Costs"],
+           colors=["#87CEEB", "#00008B"],  # ✅ Only one '#' per color code
+           autopct="%1.1f%%")
+    
+           st.pyplot(fig)
 
         # Rent/Visa/Exchange Graph
         if col3.button("📈 Show Rent/Visa/Exchange Graph"):
