@@ -94,7 +94,7 @@ elif menu == "📊 Visualize Inputs":
             other_val = max(1, tuition_val * 0.4)
             fig, ax = plt.subplots()
             ax.pie([tuition_val, other_val], labels=["Tuition", "Other Costs"],
-                   colors=["##87CEEB", "##00008B	"], autopct="%1.1f%%")
+                   colors=["##87CEEB", "##00008B"], autopct="%1.1f%%")
             st.pyplot(fig)
 
         # Rent/Visa/Exchange Graph
