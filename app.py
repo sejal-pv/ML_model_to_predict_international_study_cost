@@ -17,6 +17,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # Load trained model
 model = joblib.load("model.pkl")
+df = pd.read_csv("International_Education_Costs_with_Calculations.csv")  # Replace with your actual dataset file
+
+
 
 st.set_page_config(page_title="Study Abroad Cost Estimator", layout="centered")
 
