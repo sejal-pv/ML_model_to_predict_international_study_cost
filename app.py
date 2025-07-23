@@ -1,94 +1,111 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Inject custom CSS to change sidebar background color and text color
-st.markdown("""
-    <style>
-    [data-testid="stSidebar"] {
-        background-color: #002b36 !important; /* Custom dark blue */
-    }
-    [data-testid="stSidebar"] * {
-        color: #ffffff !important; /* White text */
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Load model and data
+# Load trained model
 model = joblib.load("model.pkl")
-df = pd.read_csv("your_dataset.csv")
 
-# Sidebar navigation
-st.sidebar.title("🎓 Study Abroad Cost App")
-menu = st.sidebar.radio("Go to", ["🏠 Home", "📈 EDA", "🧮 Predict", "📊 Visualize"])
+st.set_page_config(page_title="Study Abroad Cost Estimator", layout="centered")
 
-# 🏠 Home Page
-if menu == "🏠 Home":
-    st.title("Welcome to the Study Abroad Cost Predictor")
-    st.write("This app allows you to explore and predict the cost of studying in different countries.")
+# Title
+st.title("🎓 Study Abroad Cost Estimator")
+st.markdown("Fill in your education preferences to estimate the total cost and visualize your input compared to other students.")
 
-# 📈 EDA
-elif menu == "📈 EDA":
-    st.title("Exploratory Data Analysis")
+# Navigation
+menu = st.sidebar.selectbox("Go to", ["🎯 Predict Cost", "📊 Visualize Inputs"])
 
-    st.subheader("🔍 Dataset Preview")
-    st.write(df.head())
+# Predict Page
+if menu == "🎯 Predict Cost":
 
-    st.subheader("📊 Statistical Summary")
-    st.write(df.describe())
+    # Initialize session state
+    if "input_data" not in st.session_state:
+        st.session_state.input_data = None
+    if "prediction" not in st.session_state:
+        st.session_state.prediction = None
 
-    st.subheader("🧼 Missing Values")
-    st.write(df.isnull().sum())
+    st.markdown("### 📝 User Input")
+    duration = st.number_input("⏳ Duration (Years)", min_value=0.6, max_value=5.0)
+    tuition = st.number_input("💵 Tuition (USD)", min_value=0.0, max_value=62000.0)
+    rent = st.number_input("🛏️ Rent (USD)", min_value=150.0, max_value=2500.0)
+    visa_fee = st.number_input("🛂 Visa Fee (USD)", min_value=40.0, max_value=490.0)
+    insurance = st.number_input("🩺 Insurance (USD)", min_value=200.0, max_value=1500.0)
+    exchange_rate = st.number_input("💱 Exchange Rate", min_value=0.0, max_value=42150.0)
+    living_cost_index = st.number_input("🏠 Living Cost Index", min_value=27.0, max_value=122.0)
 
-    st.subheader("📉 Correlation Heatmap")
-    numeric_df = df.select_dtypes(include=["float64", "int64"])
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-    st.pyplot(fig)
+    # Submit Button
+    submitted = st.button("🔍 Predict", key="predict_button")
 
-    st.subheader("📦 Box Plot of Tuition by Country")
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.boxplot(x="Country", y="Tuition_USD", data=df, ax=ax)
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
-    st.subheader("🔵 Scatter Plot: Tuition vs. Total Cost")
-    fig, ax = plt.subplots()
-    sns.scatterplot(x="Tuition_USD", y="Total Annual Cost (USD)", data=df, ax=ax)
-    st.pyplot(fig)
-
-# 🧮 Predict
-elif menu == "🧮 Predict":
-    st.title("Predict Total Annual Cost")
-
-    country = st.selectbox("Select Country", df["Country"].unique())
-    level = st.selectbox("Select Level", df["Level"].unique())
-    duration = st.number_input("Duration (years)", min_value=1)
-    tuition = st.number_input("Tuition (USD)", min_value=0.0)
-    living_cost = st.number_input("Living Cost Index", min_value=0.0)
-    rent = st.number_input("Monthly Rent (USD)", min_value=0.0)
-    visa = st.number_input("Visa Fee (USD)", min_value=0.0)
-    insurance = st.number_input("Insurance (USD)", min_value=0.0)
-    exchange_rate = st.number_input("Exchange Rate", min_value=0.0)
-
-    if st.button("Predict"):
+    if submitted:
         input_data = pd.DataFrame({
-            "Country": [country],
-            "Level": [level],
             "Duration_Years": [duration],
             "Tuition_USD": [tuition],
-            "Living_Cost_Index": [living_cost],
+            "Living_Cost_Index": [living_cost_index],
             "Rent_USD": [rent],
-            "Visa_Fee_USD": [visa],
+            "Visa_Fee_USD": [visa_fee],
             "Insurance_USD": [insurance],
             "Exchange_Rate": [exchange_rate]
         })
-        prediction = model.predict(input_data)[0]
-        st.success(f"Predicted Total Annual Cost: ${prediction:,.2f}")
 
-# 📊 Visualize (placeholder)
-elif menu == "📊 Visualize":
-    st.title("Visualize Results")
-    st.write("Add interactive charts or visual summaries here.")
+        if input_data.isnull().values.any():
+            st.error("❌ Please fill in all fields.")
+        else:
+            prediction = model.predict(input_data)[0]
+            st.success(f"💰 Estimated Total Annual Cost: ${prediction:,.2f}")
+            st.session_state.input_data = input_data
+            st.session_state.prediction = prediction
+
+# Visualization Page
+elif menu == "📊 Visualize Inputs":
+    st.title("📊 Visualize Your Inputs")
+    
+    if st.session_state.get("input_data") is None:
+        st.info("📝 Please enter input values in the '🎯 Predict Cost' section first.")
+    else:
+        input_data = st.session_state["input_data"]
+
+        col1, col2 = st.columns(2)
+        col3, col4 = st.columns(2)
+
+        # Duration Graph
+        if col1.button("⏳ Show Duration Graph"):
+            st.subheader("⏳ Duration (Years)")
+            fig, ax = plt.subplots()
+            ax.bar(["Duration (Years)"], input_data["Duration_Years"], color=["#2EF9F9"])
+            ax.set_ylabel("Years")
+            st.pyplot(fig)
+
+        # Tuition Pie Chart
+        if col2.button("💵 Show Tuition Fee Graph"):
+            st.subheader("💵 Tuition Fee Breakdown")
+            tuition_val = input_data["Tuition_USD"][0]
+            other_val = max(1, tuition_val * 0.4)
+            fig, ax = plt.subplots()
+            ax.pie([tuition_val, other_val], labels=["Tuition", "Other Costs"],
+                   colors=["#FB1919", "#FAFA0B"], autopct="%1.1f%%")
+            st.pyplot(fig)
+
+        # Rent/Visa/Exchange Graph
+        if col3.button("📈 Show Rent/Visa/Exchange Graph"):
+            st.subheader("📈 Rent, Visa Fee, Exchange Rate")
+            values = [
+                input_data["Rent_USD"][0],
+                input_data["Visa_Fee_USD"][0],
+                input_data["Exchange_Rate"][0]
+            ]
+            labels = ["Rent", "Visa Fee", "Exchange Rate"]
+            fig, ax = plt.subplots()
+            ax.plot(labels, values, marker='o', linestyle='-', color="#2AF942")
+            ax.set_ylabel("Amount (USD)")
+            st.pyplot(fig)
+
+        # Living Cost Histogram
+        if col4.button("🏠 Show Living Cost Graph"):
+            st.subheader("🏠 Living Cost Index")
+            fig, ax = plt.subplots()
+            ax.hist(input_data["Living_Cost_Index"], bins=5, color="#C214E5", edgecolor='black')
+            ax.set_xlabel("Living Cost Index")
+            ax.set_ylabel("Frequency")
+            st.pyplot(fig)
