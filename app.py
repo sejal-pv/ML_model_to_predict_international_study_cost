@@ -25,7 +25,7 @@ st.title("🎓 Study Abroad Cost Estimator")
 st.markdown("Fill in your education preferences to estimate the total cost and visualize your input compared to other students.")
 
 # Navigation
-menu = st.sidebar.selectbox("Go to", ["🎯 Predict Cost", "📊 Visualize Inputs"])
+menu = st.sidebar.selectbox("Go to", ["🎯 Predict Cost", "📊 Visualize Inputs","📈 EDA Analysis"])
 
 # Predict Page
 if menu == "🎯 Predict Cost":
@@ -123,3 +123,31 @@ elif menu == "📊 Visualize Inputs":
             ax.set_xlabel("Living Cost Index")
             ax.set_ylabel("Frequency")
             st.pyplot(fig)
+# EDA Section
+elif menu == "📈 EDA Analysis":
+    st.title("📈 Exploratory Data Analysis")
+
+    st.subheader("🔹 Dataset Preview")
+    st.dataframe(df.head())
+
+    st.subheader("🔸 Correlation Heatmap")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+    st.pyplot(fig)
+
+    st.subheader("📊 Tuition Distribution")
+    fig = px.histogram(df, x="Tuition_USD", nbins=30, title="Tuition Fee Distribution", color_discrete_sequence=["#1f77b4"])
+    st.plotly_chart(fig)
+
+    st.subheader("📦 Living Cost by Country")
+    fig = px.box(df, x="Country", y="Living_Cost_Index", color="Country", title="Living Cost Comparison")
+    st.plotly_chart(fig)
+
+    st.subheader("📉 Tuition vs Total Cost")
+    fig = px.scatter(df, x="Tuition_USD", y="Total Annual Cost (USD)", color="Country",
+                     size="Rent_USD", title="Tuition vs Total Cost")
+    st.plotly_chart(fig)
+
+    with st.expander("🔍 Show Pairplot"):
+        fig = sns.pairplot(df.select_dtypes(include='number'))
+        st.pyplot(fig)
