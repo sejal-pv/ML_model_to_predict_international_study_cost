@@ -21,3 +21,6 @@ git clone https://github.com/sejal-pv/ML_model_to_predict_international_study_co
 
 
 cd ML_model_to_predict_international_study_cost
+
+working__(streamlit)
+https://mlmodeltopredictinternationalstudycost-de8udqewuavdl9vu3ppunk.streamlit.app/
