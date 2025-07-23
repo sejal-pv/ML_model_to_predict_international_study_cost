@@ -5,6 +5,16 @@ import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #e0f7fa !important; /* Light blue */
+    }
+    [data-testid="stSidebar"] * {
+        color: #003b4f !important; /* Dark blue text for readability */
+    }
+    </style>
+""", unsafe_allow_html=True)
 # Load trained model
 model = joblib.load("model.pkl")
 
