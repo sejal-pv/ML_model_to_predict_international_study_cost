@@ -16,3 +16,6 @@ This project uses a Random Forest Regression model to predict the **total annual
 - Visa Fee (USD)
 - Insurance (USD)
 
+
+git clone https://github.com/sejal-pv/ML_model_to_predict_international_study_cost
+cd ML_model_to_predict_international_study_cost
